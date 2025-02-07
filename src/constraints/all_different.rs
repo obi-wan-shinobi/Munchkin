@@ -1,26 +1,14 @@
-use super::binary_not_equals;
 use super::Constraint;
 use crate::propagators::all_different::AllDifferentPropagator;
+use crate::todo_constraint;
 use crate::variables::IntegerVariable;
 
 /// Creates the [`Constraint`] that enforces that all the given `variables` are distinct using a
 /// decomposition.
 pub fn all_different_decomposition<Var: IntegerVariable + 'static>(
-    variables: impl IntoIterator<Item = Var>,
+    _variables: impl IntoIterator<Item = Var>,
 ) -> impl Constraint {
-    let variables: Box<[Var]> = variables.into_iter().collect();
-    let mut constraints = Vec::new();
-
-    for i in 0..variables.len() {
-        for j in i + 1..variables.len() {
-            constraints.push(binary_not_equals(
-                variables[i].clone(),
-                variables[j].clone(),
-            ));
-        }
-    }
-
-    constraints
+    todo_constraint!("decompose all_different using binary not equals")
 }
 
 /// Creates the [`Constraint`] that enforces that all the given `variables` are distinct.

@@ -132,3 +132,30 @@ pub trait NegatableConstraint: Constraint {
         negation.implied_by(solver, !reification_literal)
     }
 }
+
+/// This macro wraps the [`todo!()`] macro, but tricks the type checker that an `impl Constraint`
+/// is returned.
+#[macro_export]
+macro_rules! todo_constraint {
+    ($($msg:tt)*) => {{
+        todo!($($msg)*);
+
+        struct TodoConstraint;
+        impl Constraint for TodoConstraint {
+            fn post(self, _: &mut $crate::Solver) -> Result<(), $crate::ConstraintOperationError> {
+                unreachable!()
+            }
+
+            fn implied_by(
+                self,
+                _: &mut $crate::Solver,
+                _: $crate::variables::Literal
+            ) -> Result<(), $crate::ConstraintOperationError> {
+                unreachable!()
+            }
+        }
+
+        #[allow(unreachable_code, reason = "trick the impl Constraint return type that we are returning a constraint")]
+        TodoConstraint
+    }};
+}
