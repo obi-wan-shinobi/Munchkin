@@ -38,3 +38,28 @@ where
         todo!("propagate the domains of 'a' and 'b'")
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn non_singleton_domains_are_unaffected() {
+        todo!("implement test")
+    }
+
+    #[test]
+    fn singleton_domain_for_a_prunes_value_from_domain_of_b() {
+        todo!("implement test")
+    }
+
+    #[test]
+    fn singleton_domain_for_b_prunes_value_from_domain_of_a() {
+        todo!("implement test")
+    }
+
+    #[test]
+    fn two_singleton_domains_with_same_value_trigger_conflict() {
+        todo!("implement test")
+    }
+}
