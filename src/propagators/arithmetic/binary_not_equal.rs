@@ -1,4 +1,7 @@
 use crate::basic_types::PropagationStatusCP;
+use crate::conjunction;
+use crate::engine::cp::domain_events::DomainEvents;
+use crate::engine::cp::propagation::propagation_context::ReadDomains;
 use crate::engine::cp::propagation::PropagationContextMut;
 use crate::engine::cp::propagation::Propagator;
 use crate::engine::cp::propagation::PropagatorInitialisationContext;
@@ -29,13 +32,26 @@ where
 
     fn initialise_at_root(
         &mut self,
-        _context: &mut PropagatorInitialisationContext,
+        context: &mut PropagatorInitialisationContext,
     ) -> Result<(), PropositionalConjunction> {
-        todo!("listen to ASSIGN events on both the 'a' and 'b' variable")
+        context.register(self.a.clone(), DomainEvents::ASSIGN);
+        context.register(self.b.clone(), DomainEvents::ASSIGN);
+
+        Ok(())
     }
 
-    fn propagate(&self, _context: PropagationContextMut) -> PropagationStatusCP {
-        todo!("propagate the domains of 'a' and 'b'")
+    fn propagate(&self, mut context: PropagationContextMut) -> PropagationStatusCP {
+        if context.is_fixed(&self.a) {
+            let value = context.lower_bound(&self.a);
+            context.remove(&self.b, value, conjunction!())?;
+        }
+        if context.is_fixed(&self.b) {
+            let value = context.lower_bound(&self.b);
+
+            context.remove(&self.a, value, conjunction!())?;
+        }
+
+        Ok(())
     }
 }
 
