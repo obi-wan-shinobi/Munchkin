@@ -57,25 +57,73 @@ where
 
 #[cfg(test)]
 mod tests {
+    use crate::engine::test_helper::TestSolver;
+
     use super::*;
 
     #[test]
     fn non_singleton_domains_are_unaffected() {
-        todo!("implement test")
+        let mut solver = TestSolver::default();
+
+        let x = solver.new_sparse_variable(&[1, 2, 3, 4]);
+        let y = solver.new_sparse_variable(&[1, 2, 3, 4]);
+
+        let mut propagator = solver
+            .new_propagator(BinaryNeqPropagator::new(x, y))
+            .expect("Something");
+
+        let result = solver.propagate(&mut propagator);
+        assert!(result.is_ok());
+
+        solver.assert_bounds(x, 1, 4);
+        solver.assert_bounds(y, 1, 4);
     }
 
     #[test]
     fn singleton_domain_for_a_prunes_value_from_domain_of_b() {
-        todo!("implement test")
+        let mut solver = TestSolver::default();
+
+        let x = solver.new_variable(10, 10);
+        let y = solver.new_variable(10, 15);
+
+        let mut propagator = solver
+            .new_propagator(BinaryNeqPropagator::new(x, y))
+            .expect("Something");
+
+        let result = solver.propagate(&mut propagator);
+        assert!(result.is_ok());
+
+        solver.assert_bounds(x, 10, 10);
+        solver.assert_bounds(y, 11, 15);
     }
 
     #[test]
     fn singleton_domain_for_b_prunes_value_from_domain_of_a() {
-        todo!("implement test")
+        let mut solver = TestSolver::default();
+
+        let x = solver.new_variable(1, 10);
+        let y = solver.new_variable(10, 10);
+
+        let mut propagator = solver
+            .new_propagator(BinaryNeqPropagator::new(x, y))
+            .expect("Something");
+
+        let result = solver.propagate(&mut propagator);
+        assert!(result.is_ok());
+
+        solver.assert_bounds(x, 1, 9);
+        solver.assert_bounds(y, 10, 10);
     }
 
     #[test]
     fn two_singleton_domains_with_same_value_trigger_conflict() {
-        todo!("implement test")
+        let mut solver = TestSolver::default();
+
+        let x = solver.new_variable(10, 10);
+        let y = solver.new_variable(10, 10);
+
+        let _ = solver
+            .new_propagator(BinaryNeqPropagator::new(x, y))
+            .expect_err("Expected conflict at the root level");
     }
 }
