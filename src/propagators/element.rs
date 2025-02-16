@@ -1,6 +1,8 @@
 #![allow(unused, reason = "this file is a skeleton for the assignment")]
 
 use crate::basic_types::PropagationStatusCP;
+use crate::engine::cp::domain_events::DomainEvents;
+use crate::engine::cp::propagation::propagation_context::ReadDomains;
 use crate::engine::cp::propagation::PropagationContextMut;
 use crate::engine::cp::propagation::Propagator;
 use crate::engine::cp::propagation::PropagatorInitialisationContext;
@@ -34,14 +36,28 @@ where
         "Element"
     }
 
-    fn propagate(&self, _context: PropagationContextMut) -> PropagationStatusCP {
-        todo!()
+    fn propagate(&self, context: PropagationContextMut) -> PropagationStatusCP {
+        if context.is_fixed(&self.rhs) {
+            let value = context.lower_bound(&self.rhs);
+
+            // Iterate over the array and reduce domain of index var to keep
+            // those variables which contain value
+            for i in 0..self.array.len() {
+                // Check if current variable domain allows value
+                if self.array[i].contains(value) {}
+            }
+        }
+
+        Ok(())
     }
 
     fn initialise_at_root(
         &mut self,
-        _context: &mut PropagatorInitialisationContext,
+        context: &mut PropagatorInitialisationContext,
     ) -> Result<(), PropositionalConjunction> {
-        todo!()
+        context.register(self.rhs.clone(), DomainEvents::ASSIGN);
+        context.register(self.index.clone(), DomainEvents::ASSIGN);
+
+        Ok(())
     }
 }
